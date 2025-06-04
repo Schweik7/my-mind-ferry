@@ -1,0 +1,322 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Microsoft YaHei', Arial, sans-serif;
+  overflow: hidden;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+/* 通用面板样式 */
+.scene-panel {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  z-index: 998;
+  display: none;
+  overflow: hidden;
+}
+
+.scene-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 20px;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.scene-header {
+  text-align: center;
+  margin-bottom: 20px;
+  position: relative;
+  z-index: 2;
+  flex-shrink: 0;
+}
+
+.scene-title {
+  color: white;
+  font-size: 2.2em;
+  margin-bottom: 8px;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  font-weight: 300;
+}
+
+.scene-subtitle {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 1em;
+  font-style: italic;
+  text-shadow: 0 1px 5px rgba(0, 0, 0, 0.2);
+}
+
+.scene-main {
+  display: grid;
+  grid-template-columns: 1fr 280px;
+  gap: 20px;
+  position: relative;
+  z-index: 2;
+  flex: 1;
+  min-height: 0;
+}
+
+.scene-content {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 25px;
+  padding: 20px;
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.scene-controls {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 25px;
+  padding: 20px;
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.control-section {
+  margin-bottom: 20px;
+  position: relative;
+  z-index: 2;
+}
+
+.control-section h3 {
+  color: white;
+  margin-bottom: 12px;
+  font-size: 1.1em;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.instructions {
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 15px;
+  color: white;
+}
+
+.instructions h4 {
+  color: white;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 1em;
+}
+
+.instructions p {
+  margin: 3px 0;
+  font-size: 0.85em;
+  opacity: 0.9;
+}
+
+.wave-button {
+  width: 100%;
+  padding: 10px;
+  background: linear-gradient(45deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.3));
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 0.9em;
+  transition: all 0.3s ease;
+  margin-top: 12px;
+  backdrop-filter: blur(10px);
+}
+
+.wave-button:hover {
+  background: linear-gradient(45deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.4));
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(255, 255, 255, 0.2);
+}
+
+/* 历史记录项样式 */
+.history-item {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 10px;
+  margin-bottom: 8px;
+  border-radius: 8px;
+  border-left: 3px solid rgba(255, 255, 255, 0.3);
+}
+
+.timestamp {
+  font-size: 0.8em;
+  color: rgba(255, 255, 255, 0.7);
+  margin-bottom: 3px;
+}
+
+/* 海洋气泡动画效果 */
+.ocean-bubbles {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.bubble {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  animation: bubbleRise linear infinite;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.bubble:nth-child(1) {
+  left: 10%;
+  width: 20px;
+  height: 20px;
+  animation-duration: 8s;
+  animation-delay: 0s;
+}
+
+.bubble:nth-child(2) {
+  left: 20%;
+  width: 15px;
+  height: 15px;
+  animation-duration: 6s;
+  animation-delay: 1s;
+}
+
+.bubble:nth-child(3) {
+  left: 35%;
+  width: 25px;
+  height: 25px;
+  animation-duration: 10s;
+  animation-delay: 2s;
+}
+
+.bubble:nth-child(4) {
+  left: 50%;
+  width: 18px;
+  height: 18px;
+  animation-duration: 7s;
+  animation-delay: 3s;
+}
+
+.bubble:nth-child(5) {
+  left: 65%;
+  width: 22px;
+  height: 22px;
+  animation-duration: 9s;
+  animation-delay: 4s;
+}
+
+.bubble:nth-child(6) {
+  left: 80%;
+  width: 16px;
+  height: 16px;
+  animation-duration: 8s;
+  animation-delay: 5s;
+}
+
+.bubble:nth-child(7) {
+  left: 90%;
+  width: 12px;
+  height: 12px;
+  animation-duration: 6s;
+  animation-delay: 6s;
+}
+
+@keyframes bubbleRise {
+  0% {
+    transform: translateY(100vh) scale(0);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+    transform: translateY(90vh) scale(1);
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-10vh) scale(1);
+    opacity: 0;
+  }
+}
+
+/* 海洋波浪效果 */
+.ocean-waves {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100px;
+  background: linear-gradient(180deg, transparent 0%, rgba(255, 255, 255, 0.1) 100%);
+  overflow: hidden;
+  z-index: 1;
+}
+
+.wave {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 200%;
+  height: 100%;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 120'%3E%3Cpath d='M0,60 C300,10 600,110 900,60 C1000,40 1100,80 1200,60 L1200,120 L0,120 Z' fill='rgba(255,255,255,0.1)'/%3E%3C/svg%3E") repeat-x;
+  animation: waveAnimation 15s linear infinite;
+}
+
+.wave:nth-child(2) {
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 120'%3E%3Cpath d='M0,80 C300,30 600,130 900,80 C1000,60 1100,100 1200,80 L1200,120 L0,120 Z' fill='rgba(255,255,255,0.05)'/%3E%3C/svg%3E") repeat-x;
+  animation: waveAnimation 20s linear infinite reverse;
+}
+
+@keyframes waveAnimation {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+@media (max-width: 768px) {
+  .scene-main {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  .scene-container {
+    padding: 15px;
+  }
+
+  .scene-title {
+    font-size: 1.8em;
+  }
+
+  .scene-subtitle {
+    font-size: 0.9em;
+  }
+
+  .scene-controls {
+    order: -1;
+    margin-bottom: 15px;
+  }
+}

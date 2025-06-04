@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>心渊摆渡人</title>
+  <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
+  <link rel="stylesheet" href="/src/styles/main.css">
+  <link rel="stylesheet" href="/src/styles/navigation.css">
+  <link rel="stylesheet" href="/src/styles/pain-visualization.css">
+  <link rel="stylesheet" href="/src/styles/emotion-recognition.css">
+  <link rel="stylesheet" href="/src/styles/cognitive-lighthouse.css">
+  <link rel="stylesheet" href="/src/styles/self-sanctuary.css">
+</head>
+<body>
+  <!-- 左侧导航触发器 -->
+  <div id="nav-trigger">
+    <div class="nav-icon">
+      <div class="wave-line"></div>
+      <div class="wave-line"></div>
+      <div class="wave-line"></div>
+    </div>
+  </div>
+
+  <!-- 左侧导航弹窗 -->
+  <div id="nav-panel" class="nav-hidden">
+    <div class="nav-content">
+      <div class="nav-header">
+        <h3>🌊 心灵旅途</h3>
+        <button class="nav-close">×</button>
+      </div>
+
+      <div class="nav-journey">
+        <div class="journey-item active" data-scene="1">
+          <div class="journey-icon">⛵</div>
+          <div class="journey-info">
+            <h4>启程</h4>
+            <p>心灵摆渡人的引导</p>
+          </div>
+          <div class="journey-ripple"></div>
+        </div>
+
+        <div class="journey-item" data-scene="2">
+          <div class="journey-icon">🏥</div>
+          <div class="journey-info">
+            <h4>治愈之港</h4>
+            <p>身体感觉觉知</p>
+          </div>
+          <div class="journey-ripple"></div>
+        </div>
+
+        <div class="journey-item" data-scene="3">
+          <div class="journey-icon">💎</div>
+          <div class="journey-info">
+            <h4>情感之岛</h4>
+            <p>情绪镜像探索</p>
+          </div>
+          <div class="journey-ripple"></div>
+        </div>
+
+        <div class="journey-item" data-scene="4">
+          <div class="journey-icon">🗼</div>
+          <div class="journey-info">
+            <h4>认知灯塔</h4>
+            <p>思维觉知与重构</p>
+          </div>
+          <div class="journey-ripple"></div>
+        </div>
+
+        <div class="journey-item" data-scene="5">
+          <div class="journey-icon">🏛️</div>
+          <div class="journey-info">
+            <h4>自我圣殿</h4>
+            <p>内在力量与资源</p>
+          </div>
+          <div class="journey-ripple"></div>
+        </div>
+
+        <div class="journey-item" data-scene="6">
+          <div class="journey-icon">🌸</div>
+          <div class="journey-info">
+            <h4>希望彼岸</h4>
+            <p>心灵重生与净化</p>
+          </div>
+          <div class="journey-ripple"></div>
+        </div>
+      </div>
+
+      <div class="nav-message">
+        在心灵的海洋中航行<br>寻找内心的平静与力量
+      </div>
+    </div>
+  </div>
+
+  <!-- 场景容器 -->
+  <div id="pain-visualization-panel" class="scene-panel"></div>
+  <div id="emotion-recognition-panel" class="scene-panel"></div>
+  <div id="cognitive-lighthouse-panel" class="scene-panel"></div>
+  <div id="self-sanctuary-panel" class="scene-panel"></div>
+
+  <!-- A-Frame VR场景 -->
+  <a-scene>
+    <!-- 资源预加载 -->
+    <a-assets>
+      <a-asset-item id="ferrymanModel" src="/assets/心灵摆渡人.glb"></a-asset-item>
+      <img id="skyTexture1" src="/assets/1沙滩.jpg">
+      <img id="skyTexture6" src="/assets/3道路.jpg">
+      
+      <!-- 新场景纹理 -->
+      <img id="skyTexture2" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAyNCIgaGVpZ2h0PSIxMDI0IiB2aWV3Qm94PSIwIDAgMjAyNCAxMDI0IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxkZWZzPjxyYWRpYWxHcmFkaWVudCBpZD0ibWVkaWNhbFNreSIgY3g9IjUwJSIgY3k9IjMwJSIgcj0iODAlIj48c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjZmZmZmZmIi8+PHN0b3Agb2Zmc2V0PSI0MCUiIHN0b3AtY29sb3I9IiNlM2Y2ZmYiLz48c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiNiNGUyZmYiLz48L3JhZGlhbEdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI21lZGljYWxTa3kpIi8+PC9zdmc+">
+      <img id="skyTexture4" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAyNCIgaGVpZ2h0PSIxMDI0IiB2aWV3Qm94PSIwIDAgMjAyNCAxMDI0IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxkZWZzPjxyYWRpYWxHcmFkaWVudCBpZD0iY29nbml0aXZlU2t5IiBjeD0iNTAlIiBjeT0iMjAlIiByPSI5MCUiPjxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiNmZjc0NzQiLz48c3RvcCBvZmZzZXQ9IjUwJSIgc3RvcC1jb2xvcj0iIzY2N2VlYSIvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzc2NGJhMiIvPjwvcmFkaWFsR3JhZGllbnQ+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjY29nbml0aXZlU2t5KSIvPjwvc3ZnPg==">
+      <img id="skyTexture5" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAyNCIgaGVpZ2h0PSIxMDI0IiB2aWV3Qm94PSIwIDAgMjAyNCAxMDI0IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxkZWZzPjxyYWRpYWxHcmFkaWVudCBpZD0ic2FuY3R1YXJ5U2t5IiBjeD0iNTAlIiBjeT0iMzAlIiByPSI4NSUiPjxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiNhOGU2Y2YiLz48c3RvcCBvZmZzZXQ9IjUwJSIgc3RvcC1jb2xvcj0iIzY2N2VlYSIvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzc2NGJhMiIvPjwvcmFkaWFsR3JhZGllbnQ+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjc2FuY3R1YXJ5U2t5KSIvPjwvc3ZnPg==">
+    </a-assets>
+
+    <!-- 摄像机系统 -->
+    <a-camera id="main-camera" look-controls wasd-controls position="0 1.6 0">
+      <!-- VR场景容器会在这里动态加载 -->
+    </a-camera>
+
+    <!-- 动态天空 -->
+    <a-sky id="scene-sky" src="#skyTexture1" rotation="0 -90 0"></a-sky>
+
+    <!-- 基础环境光 -->
+    <a-light id="ambient-light" type="ambient" color="#606060" intensity="0.4"></a-light>
+  </a-scene>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>

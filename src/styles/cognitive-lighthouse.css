@@ -1,0 +1,115 @@
+/* 认知灯塔场景样式 */
+#cognitive-lighthouse-panel {
+  background: linear-gradient(135deg, #ff7b7b 0%, #667eea 100%);
+}
+
+.thought-input-area {
+  margin-bottom: 20px;
+}
+
+.thought-input {
+  width: 100%;
+  min-height: 100px;
+  padding: 15px;
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 15px;
+  color: white;
+  font-size: 1em;
+  resize: vertical;
+  backdrop-filter: blur(10px);
+}
+
+.thought-input::placeholder {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.distortion-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.distortion-card {
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  padding: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+}
+
+.distortion-card:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+}
+
+.distortion-card.selected {
+  border-color: rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.distortion-name {
+  font-weight: bold;
+  color: white;
+  margin-bottom: 5px;
+  font-size: 0.9em;
+}
+
+.distortion-desc {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.8em;
+}
+
+.evidence-section {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  margin: 20px 0;
+}
+
+.evidence-column {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 15px;
+}
+
+.evidence-title {
+  color: white;
+  font-weight: bold;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.evidence-list {
+  min-height: 120px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.evidence-item {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 8px;
+  margin-bottom: 8px;
+  border-radius: 8px;
+  color: white;
+  font-size: 0.9em;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.evidence-item:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+@media (max-width: 768px) {
+  .distortion-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .evidence-section {
+    grid-template-columns: 1fr;
+  }
+}

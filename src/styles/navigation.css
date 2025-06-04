@@ -1,0 +1,219 @@
+/* 导航触发器 */
+#nav-trigger {
+  position: fixed;
+  top: 30px;
+  left: 30px;
+  width: 60px;
+  height: 60px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  cursor: pointer;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  transition: all 0.3s ease;
+}
+
+#nav-trigger:hover {
+  transform: scale(1.1);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+}
+
+.nav-icon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.wave-line {
+  width: 24px;
+  height: 3px;
+  background: linear-gradient(90deg, #4a90e2, #357abd);
+  border-radius: 2px;
+  animation: waveFlow 2s infinite ease-in-out;
+}
+
+.wave-line:nth-child(2) {
+  width: 20px;
+  animation-delay: 0.2s;
+}
+
+.wave-line:nth-child(3) {
+  width: 16px;
+  animation-delay: 0.4s;
+}
+
+@keyframes waveFlow {
+  0%, 100% {
+    opacity: 0.6;
+    transform: scaleX(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scaleX(1.2);
+  }
+}
+
+/* 导航面板 */
+#nav-panel {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 320px;
+  height: 100vh;
+  background: linear-gradient(135deg, rgba(26, 35, 126, 0.95) 0%, rgba(74, 144, 226, 0.95) 100%);
+  backdrop-filter: blur(20px);
+  border-right: 1px solid rgba(255, 255, 255, 0.2);
+  z-index: 999;
+  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+  box-shadow: 0 0 50px rgba(0, 0, 0, 0.3);
+}
+
+.nav-hidden {
+  transform: translateX(-100%);
+}
+
+.nav-content {
+  padding: 30px 20px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.nav-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 40px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.nav-header h3 {
+  color: white;
+  font-size: 1.4em;
+  margin: 0;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.nav-close {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 24px;
+  cursor: pointer;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.nav-close:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.nav-journey {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  overflow-y: auto;
+}
+
+.journey-item {
+  position: relative;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 15px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  overflow: hidden;
+}
+
+.journey-item:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateX(5px);
+}
+
+.journey-item.active {
+  background: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.4);
+  box-shadow: 0 8px 32px rgba(255, 255, 255, 0.1);
+}
+
+.journey-icon {
+  font-size: 1.8em;
+  width: 45px;
+  height: 45px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  flex-shrink: 0;
+}
+
+.journey-info h4 {
+  color: white;
+  margin: 0 0 3px 0;
+  font-size: 1em;
+  font-weight: 600;
+}
+
+.journey-info p {
+  color: rgba(255, 255, 255, 0.8);
+  margin: 0;
+  font-size: 0.85em;
+}
+
+.journey-ripple {
+  position: absolute;
+  top: 50%;
+  right: 15px;
+  width: 25px;
+  height: 25px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  transform: translateY(-50%);
+  animation: ripple 2s infinite;
+}
+
+@keyframes ripple {
+  0% {
+    transform: translateY(-50%) scale(0.8);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-50%) scale(1.5);
+    opacity: 0;
+  }
+}
+
+.nav-message {
+  color: rgba(255, 255, 255, 0.8);
+  text-align: center;
+  font-size: 0.9em;
+  line-height: 1.6;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  font-style: italic;
+}
+
+@media (max-width: 768px) {
+  #nav-panel {
+    width: 280px;
+  }
+}

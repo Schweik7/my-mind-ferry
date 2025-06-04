@@ -1,0 +1,142 @@
+/* 自我圣殿场景样式 */
+#self-sanctuary-panel {
+  background: linear-gradient(135deg, #a8e6cf 0%, #667eea 100%);
+}
+
+.strength-categories {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.strength-category {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 15px;
+  padding: 15px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.strength-category:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: translateY(-3px);
+}
+
+.strength-category.active {
+  border-color: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.category-icon {
+  font-size: 2em;
+  margin-bottom: 8px;
+}
+
+.category-name {
+  color: white;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.category-desc {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.8em;
+}
+
+.values-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-bottom: 15px;
+}
+
+.value-item {
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  padding: 10px 8px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.value-item:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.value-item.selected {
+  border-color: rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.value-name {
+  color: white;
+  font-size: 0.8em;
+  font-weight: bold;
+}
+
+.support-network {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.network-category {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 15px;
+}
+
+.network-title {
+  color: white;
+  font-weight: bold;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.network-list {
+  min-height: 100px;
+  max-height: 150px;
+  overflow-y: auto;
+}
+
+.life-story-section {
+  margin-bottom: 20px;
+}
+
+.story-input {
+  width: 100%;
+  min-height: 80px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
+  color: white;
+  font-size: 0.9em;
+  resize: vertical;
+  backdrop-filter: blur(10px);
+}
+
+.story-input::placeholder {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+@media (max-width: 768px) {
+  .strength-categories {
+    grid-template-columns: 1fr;
+  }
+
+  .values-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .support-network {
+    grid-template-columns: 1fr;
+  }
+}

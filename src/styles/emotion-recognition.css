@@ -1,0 +1,159 @@
+/* 表情识别场景样式 */
+#emotion-recognition-panel {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.emotion-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.92);
+  margin-top: 30px;
+  margin-bottom: 20px;
+  border-radius: 25px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.emotion-header {
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+.emotion-header h1 {
+  color: #e74c3c;
+  font-size: 2.2em;
+  margin-bottom: 8px;
+  background: linear-gradient(45deg, #e74c3c, #f39c12);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.emotion-header p {
+  color: #667;
+  font-size: 1em;
+  font-style: italic;
+}
+
+.emotion-main-content {
+  display: block;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.video-section {
+  background: #f8f9fa;
+  border-radius: 15px;
+  padding: 30px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+#emotion-webcam {
+  width: 100%;
+  max-width: 640px;
+  height: auto;
+  border-radius: 15px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  margin-bottom: 20px;
+}
+
+#camera-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  background: #f0f0f0;
+  border-radius: 15px;
+  font-size: 1.2em;
+  color: #666;
+  margin-bottom: 20px;
+}
+
+.emotion-display {
+  background: #fff;
+  border-radius: 15px;
+  padding: 25px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.emotion-icon {
+  font-size: 4em;
+  margin-bottom: 15px;
+  animation: emotionBounce 2s infinite;
+}
+
+@keyframes emotionBounce {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+.emotion-info {
+  background: #f0f7ff;
+  border-radius: 10px;
+  padding: 15px;
+  margin: 15px 0;
+}
+
+.confidence-bar {
+  width: 100%;
+  height: 10px;
+  background: #e0e0e0;
+  border-radius: 5px;
+  overflow: hidden;
+  margin-top: 10px;
+}
+
+.confidence-fill {
+  height: 100%;
+  background: linear-gradient(45deg, #4CAF50, #81C784);
+  transition: width 0.5s ease;
+  border-radius: 5px;
+}
+
+.emotion-history {
+  max-height: 300px;
+  overflow-y: auto;
+  background: #f8f9fa;
+  border-radius: 10px;
+  padding: 15px;
+  margin-top: 20px;
+}
+
+.status-indicator {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  margin-right: 8px;
+  animation: statusPulse 2s infinite;
+}
+
+.positive {
+  background: #4CAF50;
+}
+
+.negative {
+  background: #F44336;
+}
+
+.neutral {
+  background: #FFC107;
+}
+
+@keyframes statusPulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 1;
+  }
+}
