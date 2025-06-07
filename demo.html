@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>简化聊天测试</title>
+    
+    <!-- 聊天样式 -->
+    <link rel="stylesheet" href="/src/styles/chat.css">
+    
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header {
+            background: #667eea;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .controls {
+            padding: 15px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            background: #667eea;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .btn:hover { background: #5a6fd8; }
+        .btn:disabled { background: #ccc; cursor: not-allowed; }
+        
+        .status {
+            margin-left: auto;
+            font-weight: bold;
+        }
+        
+        #chat-container {
+            height: 500px;
+        }
+        
+        .scene-chat-container {
+            height: 100% !important;
+            display: block !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💬 简化聊天功能测试</h1>
+            <p>测试基本的WebSocket聊天功能</p>
+        </div>
+        
+        <div class="controls">
+            <select id="template-select">
+                <option value="1">心灵摆渡人的启程</option>
+                <option value="2">治愈之港的守护者</option>
+                <option value="3">情感之岛的镜像精灵</option>
+            </select>
+            <button class="btn" onclick="startChat()">开始聊天</button>
+            <button class="btn" onclick="testMessage()">测试消息</button>
+            <div class="status" id="status">未连接</div>
+        </div>
+        
+        <div id="chat-container">
+            <!-- 聊天界面将在这里生成 -->
+        </div>
+    </div>
+
+    <script type="module">
+        import { chatManager } from './src/components/ChatManager.js';
+        import { wsClient, WebSocketEvents } from './src/services/WebSocketClient.js';
+
+        // 状态更新
+        function updateStatus(text, color = '#333') {
+            const statusEl = document.getElementById('status');
+            statusEl.textContent = text;
+            statusEl.style.color = color;
+        }
+
+        // 监听WebSocket事件
+        wsClient.on(WebSocketEvents.CONNECTED, () => {
+            updateStatus('连接中...', '#FFA500');
+        });
+
+        wsClient.on(WebSocketEvents.SESSION_CREATED, (data) => {
+            updateStatus('已连接', '#4CAF50');
+            console.log('会话创建成功:', data);
+        });
+
+        wsClient.on(WebSocketEvents.ERROR, (data) => {
+            updateStatus('连接错误', '#F44336');
+            console.error('WebSocket错误:', data);
+        });
+
+        wsClient.on(WebSocketEvents.DISCONNECTED, () => {
+            updateStatus('已断开', '#757575');
+        });
+
+        // 全局函数
+        window.startChat = function() {
+            const templateId = parseInt(document.getElementById('template-select').value);
+            console.log('开始聊天，模板ID:', templateId);
+            
+            updateStatus('初始化中...', '#FFA500');
+            
+            try {
+                chatManager.initChatInterface('chat-container', templateId);
+                console.log('聊天界面初始化完成');
+            } catch (error) {
+                console.error('初始化失败:', error);
+                updateStatus('初始化失败', '#F44336');
+            }
+        };
+
+        window.testMessage = function() {
+            if (!chatManager.inputElement) {
+                alert('请先开始聊天');
+                return;
+            }
+            
+            const testMessage = "你好，这是一条测试消息。";
+            chatManager.inputElement.value = testMessage;
+            chatManager.sendMessage();
+        };
+
+        console.log('页面加载完成');
+        updateStatus('点击"开始聊天"', '#666');
+    </script>
+</body>
+</html>
