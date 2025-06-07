@@ -1,4 +1,4 @@
-// src/scenes/VRScenes.js - 修复版本
+// src/scenes/VRScenes.js - 支持射线交互的版本
 export function createVRScenes() {
   const camera = document.getElementById('main-camera');
   
@@ -15,29 +15,50 @@ export function createVRScenes() {
     }
   });
 
-  // 场景1: 心灵摆渡人场景
+  // 添加cursor组件到相机，支持射线交互
+  if (!camera.querySelector('[cursor]')) {
+    const cursor = document.createElement('a-cursor');
+    cursor.setAttribute('position', '0 0 -1');
+    cursor.setAttribute('geometry', 'primitive: ring; radiusInner: 0.02; radiusOuter: 0.03');
+    cursor.setAttribute('material', 'color: #4fc3f7; shader: flat; opacity: 0.8');
+    cursor.setAttribute('animation__click', 'property: scale; startEvents: click; to: 0.8 0.8 0.8; dur: 150; dir: alternate; easing: easeInQuad');
+    cursor.setAttribute('animation__hover', 'property: scale; startEvents: mouseenter; to: 1.2 1.2 1.2; dur: 200; dir: alternate; easing: easeInQuad');
+    camera.appendChild(cursor);
+  }
+
+  // 场景1: 心灵摆渡人场景 - 支持点击交互
   const scene1Container = document.createElement('a-entity');
   scene1Container.id = 'scene1-container';
   scene1Container.setAttribute('visible', true);
   
   scene1Container.innerHTML = `
-    <!-- 心灵摆渡人模型 -->
-    <a-entity id="ferryman-model" gltf-model="#ferrymanModel" position="1 -0.5 -1.5" rotation="0 -130 0" scale="1 1 1">
-      <!-- 直接给模型打光 - 这些光源会跟随模型 -->
-      <!-- 主光源 - 从正面照亮 -->
+    <!-- 心灵摆渡人模型 - 添加点击交互 -->
+    <a-entity 
+      id="ferryman-model" 
+      gltf-model="#ferrymanModel" 
+      position="1 -0.5 -1.5" 
+      rotation="0 -130 0" 
+      scale="1 1 1"
+      class="clickable"
+      cursor-listener>
+      
+      <!-- 点击提示文字 -->
+      <a-text 
+        id="click-hint"
+        value="点击我开始心灵之旅"
+        position="0 2 0"
+        align="center"
+        color="#ffffff"
+        font="kframe"
+        width="6"
+        animation="property: position; to: 0 2.3 0; loop: true; dur: 2000; dir: alternate; easing: easeInOutSine">
+      </a-text>
+      
+      <!-- 交互光效 -->
       <a-light type="point" position="0.5 0.5 0.8" color="#ffffff" intensity="3" distance="4"></a-light>
-      
-      <!-- 轮廓光 - 从背后照亮边缘 -->
       <a-light type="point" position="-0.3 0.3 -0.8" color="#87ceeb" intensity="2" distance="3"></a-light>
-      
-      <!-- 侧面补光 - 增加立体感 -->
       <a-light type="point" position="-0.8 0.2 0.2" color="#ffd700" intensity="1.5" distance="3"></a-light>
-      
-      <!-- 底部补光 - 避免阴影过重 -->
       <a-light type="point" position="0 -0.8 0.3" color="#ffffff" intensity="1.2" distance="2"></a-light>
-      
-      <!-- 顶部补光 - 增加头部亮度 -->
-      <a-light type="point" position="0 0.8 0" color="#ffffff" intensity="1" distance="2"></a-light>
       <a-light type="point" position="0 0.8 0" color="#44a6ff" intensity="0.8" distance="2"></a-light>
     </a-entity>
     
@@ -45,7 +66,15 @@ export function createVRScenes() {
     <a-light type="spot" position="0 0 -0.1" rotation="-5 0 0" color="#ffa726" intensity="0.8" angle="45" penumbra="0.3"></a-light>
     
     <!-- 欢迎文字 -->
-    <a-text position="0 2.5 -2" align="center" color="#fff" value="⛵ 心灵摆渡人\\n\\n欢迎踏上心灵治愈的旅程\\n我将陪伴您探索内心世界" width="8" font="kframe" animation="property: position; to: 0 2.8 -2; loop: true; dur: 5000; dir: alternate"></a-text>
+    <a-text 
+      position="0 2.5 -2" 
+      align="center" 
+      color="#fff" 
+      value="⛵ 心灵摆渡人\\n\\n欢迎踏上心灵治愈的旅程" 
+      width="8" 
+      font="kframe" 
+      animation="property: position; to: 0 2.8 -2; loop: true; dur: 5000; dir: alternate">
+    </a-text>
     
     <!-- 漂浮的光球装饰 -->
     <a-sphere position="-2 1.5 -3" radius="0.1" color="#87ceeb" opacity="0.7" animation="property: position; to: -2 2 -3; loop: true; dur: 3000; dir: alternate"></a-sphere>
@@ -54,6 +83,51 @@ export function createVRScenes() {
   `;
   
   camera.appendChild(scene1Container);
+  
+  // 添加点击事件监听器
+  const ferrymanModel = scene1Container.querySelector('#ferryman-model');
+  if (ferrymanModel) {
+    // 添加hover效果
+    ferrymanModel.addEventListener('mouseenter', function() {
+      this.setAttribute('animation__hover', 'property: scale; to: 1.1 1.1 1.1; dur: 300; easing: easeOutQuad');
+      const hint = this.querySelector('#click-hint');
+      if (hint) {
+        hint.setAttribute('color', '#4fc3f7');
+        hint.setAttribute('animation__glow', 'property: opacity; to: 1; from: 0.7; loop: true; dur: 800; dir: alternate');
+      }
+    });
+
+    ferrymanModel.addEventListener('mouseleave', function() {
+      this.setAttribute('animation__hover', 'property: scale; to: 1 1 1; dur: 300; easing: easeOutQuad');
+      const hint = this.querySelector('#click-hint');
+      if (hint) {
+        hint.setAttribute('color', '#ffffff');
+        hint.removeAttribute('animation__glow');
+      }
+    });
+
+    // 添加点击事件
+    ferrymanModel.addEventListener('click', function() {
+      console.log('摆渡人被点击！');
+      
+      // 点击动画
+      this.setAttribute('animation__click', 'property: scale; to: 0.95 0.95 0.95; dur: 150; dir: alternate; easing: easeInQuad');
+      
+      // 隐藏提示文字
+      const hint = this.querySelector('#click-hint');
+      if (hint) {
+        hint.setAttribute('animation__hide', 'property: opacity; to: 0; dur: 500');
+      }
+      
+      // 延迟显示介绍卡片
+      setTimeout(() => {
+        if (window.enhancedSceneManager) {
+          window.enhancedSceneManager.showVRIntroductionCards();
+        }
+      }, 600);
+    });
+  }
+  
   console.log('✅ 场景1 (心灵摆渡人) VR容器已创建');
 
   // 场景2: 疼痛可视化VR展示
@@ -191,6 +265,23 @@ export function createVRScenes() {
   console.log('✅ 场景6 (希望彼岸) VR容器已创建');
 
   console.log('🎬 所有VR场景容器创建完成');
+  
+  // 注册cursor-listener组件
+  if (typeof AFRAME !== 'undefined') {
+    AFRAME.registerComponent('cursor-listener', {
+      init: function () {
+        this.el.addEventListener('mouseenter', function (evt) {
+          console.log('鼠标进入:', this.id || this.tagName);
+        });
+        this.el.addEventListener('mouseleave', function (evt) {
+          console.log('鼠标离开:', this.id || this.tagName);
+        });
+        this.el.addEventListener('click', function (evt) {
+          console.log('点击:', this.id || this.tagName);
+        });
+      }
+    });
+  }
   
   // 触发场景初始化完成事件
   window.dispatchEvent(new CustomEvent('vrScenesReady'));

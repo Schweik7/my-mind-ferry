@@ -1,17 +1,12 @@
-// src/services/WebSocketClient.js
+// src/services/WebSocketClient.js - 简化版本
 /**
- * WebSocket客户端管理器 - 统一处理所有WebSocket连接
+ * WebSocket客户端管理器 - 移除复杂的连接状态检测，假设后台一直运行
  */
 export class WebSocketClient {
   constructor() {
     this.ws = null;
-    this.isConnected = false;
     this.sessionId = null;
     this.templateId = null;
-    this.messageQueue = [];
-    this.reconnectAttempts = 0;
-    this.maxReconnectAttempts = 5;
-    this.reconnectDelay = 1000;
     this.eventListeners = new Map();
     this.currentStreamContent = ''; // 用于累积流式内容
   }
@@ -20,19 +15,18 @@ export class WebSocketClient {
   async connect(templateId) {
     console.log('=== WebSocket连接请求 ===');
     console.log('模板ID:', templateId);
-    console.log('当前连接状态:', this.isConnected);
-    console.log('当前模板ID:', this.templateId);
     
-    if (this.isConnected && this.templateId === templateId) {
-      console.log('WebSocket已连接到相同模板，跳过重连');
-      return;
-    }
-
     // 如果已连接到不同模板，先断开
-    if (this.isConnected) {
+    if (this.ws && this.templateId !== templateId) {
       console.log('断开现有连接...');
       this.disconnect();
       await new Promise(resolve => setTimeout(resolve, 100));
+    }
+
+    // 如果已经连接到相同模板，直接返回
+    if (this.ws && this.ws.readyState === WebSocket.OPEN && this.templateId === templateId) {
+      console.log('WebSocket已连接到相同模板，跳过重连');
+      return;
     }
 
     this.templateId = templateId;
@@ -56,12 +50,6 @@ export class WebSocketClient {
   // 处理连接打开
   handleOpen() {
     console.log('WebSocket连接已建立');
-    this.isConnected = true;
-    this.reconnectAttempts = 0;
-    
-    // 发送队列中的消息
-    this.flushMessageQueue();
-    
     this.emit('connected', { templateId: this.templateId });
   }
 
@@ -140,37 +128,16 @@ export class WebSocketClient {
   // 处理连接关闭
   handleClose(event) {
     console.log('WebSocket连接已关闭:', event.code, event.reason);
-    this.isConnected = false;
-    
     this.emit('disconnected', { 
       code: event.code, 
       reason: event.reason 
     });
-
-    // 尝试重连
-    if (event.code !== 1000 && this.reconnectAttempts < this.maxReconnectAttempts) {
-      this.attemptReconnect();
-    }
   }
 
   // 处理连接错误
   handleError(error) {
     console.error('WebSocket错误:', error);
     this.emit('error', { message: 'WebSocket连接错误' });
-  }
-
-  // 尝试重连
-  attemptReconnect() {
-    this.reconnectAttempts++;
-    const delay = this.reconnectDelay * Math.pow(2, this.reconnectAttempts - 1);
-    
-    console.log(`尝试重连 (${this.reconnectAttempts}/${this.maxReconnectAttempts})，延迟 ${delay}ms`);
-    
-    setTimeout(() => {
-      if (!this.isConnected && this.templateId) {
-        this.connect(this.templateId);
-      }
-    }, delay);
   }
 
   // 发送消息
@@ -181,33 +148,19 @@ export class WebSocketClient {
       timestamp: new Date().toISOString()
     };
 
-    if (this.isConnected && this.ws.readyState === WebSocket.OPEN) {
+    if (this.ws && this.ws.readyState === WebSocket.OPEN) {
       this.ws.send(JSON.stringify(message));
       console.log('WebSocket发送消息:', message);
-      
-      // 不在这里触发消息发送事件，让ChatManager处理
-      // this.emit('message_sent', { ... });
     } else {
-      console.log('WebSocket未连接，将消息加入队列');
-      this.messageQueue.push(message);
-      
-      // 如果没有连接，也不触发事件，让上层处理
-      console.warn('WebSocket连接状态:', this.ws ? this.ws.readyState : 'null');
+      console.warn('WebSocket未连接或连接状态异常，无法发送消息');
+      this.emit('error', { message: 'WebSocket连接异常，请稍后重试' });
     }
   }
 
   // 发送ping
   sendPing() {
-    if (this.isConnected && this.ws.readyState === WebSocket.OPEN) {
+    if (this.ws && this.ws.readyState === WebSocket.OPEN) {
       this.ws.send(JSON.stringify({ type: 'ping' }));
-    }
-  }
-
-  // 清空消息队列
-  flushMessageQueue() {
-    while (this.messageQueue.length > 0) {
-      const message = this.messageQueue.shift();
-      this.ws.send(JSON.stringify(message));
     }
   }
 
@@ -216,7 +169,6 @@ export class WebSocketClient {
     console.log('=== 断开WebSocket连接 ===');
     
     if (this.ws) {
-      this.isConnected = false;
       this.ws.close(1000, '用户主动断开');
       this.ws = null;
       console.log('WebSocket连接已关闭');
@@ -224,10 +176,8 @@ export class WebSocketClient {
     
     this.sessionId = null;
     this.templateId = null;
-    this.messageQueue = [];
     this.currentStreamContent = '';
     
-    // 不清空事件监听器，因为可能需要重连
     console.log('WebSocket状态已重置');
   }
 
@@ -266,12 +216,16 @@ export class WebSocketClient {
   // 获取连接状态
   getStatus() {
     return {
-      isConnected: this.isConnected,
+      isConnected: this.ws && this.ws.readyState === WebSocket.OPEN,
       sessionId: this.sessionId,
       templateId: this.templateId,
-      readyState: this.ws ? this.ws.readyState : null,
-      queuedMessages: this.messageQueue.length
+      readyState: this.ws ? this.ws.readyState : null
     };
+  }
+
+  // 简化的连接状态检查
+  get isConnected() {
+    return this.ws && this.ws.readyState === WebSocket.OPEN;
   }
 }
 

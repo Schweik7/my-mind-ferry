@@ -1,4 +1,4 @@
-// src/components/ChatManager.js
+// src/components/ChatManager.js - 修复连接问题
 import { wsClient, WebSocketEvents } from '../services/WebSocketClient.js';
 
 export class ChatManager {
@@ -9,8 +9,9 @@ export class ChatManager {
     this.chatContainer = null;
     this.inputElement = null;
     this.sendButton = null;
-    this.statusIndicator = null;
-    this.currentStreamMessageEl = null; // 当前流式消息元素
+    this.currentStreamMessageEl = null;
+    this.connectionRetries = 0;
+    this.maxRetries = 3;
     
     this.setupEventListeners();
   }
@@ -20,6 +21,14 @@ export class ChatManager {
     console.log('=== 初始化聊天界面 ===');
     console.log('容器ID:', containerId);
     console.log('模板ID:', templateId);
+    
+    // 如果已经是相同模板，不重复初始化
+    if (this.currentTemplate === templateId && 
+        this.chatContainer && 
+        this.chatContainer.id === containerId) {
+      console.log('聊天界面已存在，跳过初始化');
+      return;
+    }
     
     this.currentTemplate = templateId;
     this.chatContainer = document.getElementById(containerId);
@@ -56,13 +65,13 @@ export class ChatManager {
       <div class="chat-interface">
         <div class="chat-header">
           <div class="chat-status">
-            <span class="status-indicator" id="chat-status-indicator">●</span>
-            <span class="status-text" id="chat-status-text">连接中...</span>
+            <span class="status-indicator connecting">●</span>
+            <span class="status-text">连接中...</span>
           </div>
-          <button class="chat-clear-btn" onclick="chatManager.clearHistory()">清空对话</button>
+          <button class="chat-clear-btn" onclick="window.chatManager.clearHistory()">清空对话</button>
         </div>
         
-        <div class="chat-messages" id="chat-messages">
+        <div class="chat-messages" id="chat-messages-${this.chatContainer.id}">
           <div class="welcome-message">
             <div class="message-avatar">🌟</div>
             <div class="message-content">
@@ -74,18 +83,18 @@ export class ChatManager {
         <div class="chat-input-container">
           <div class="input-wrapper">
             <textarea 
-              id="chat-input" 
+              id="chat-input-${this.chatContainer.id}" 
               placeholder="在这里输入您的想法..." 
               rows="1"
               maxlength="2000"
             ></textarea>
-            <button id="chat-send-btn" class="send-button">
+            <button id="chat-send-btn-${this.chatContainer.id}" class="send-button">
               <span class="send-icon">🚀</span>
             </button>
           </div>
           <div class="input-info">
             <span class="char-count">0/2000</span>
-            <span class="typing-indicator" id="typing-indicator" style="display: none;">AI正在思考...</span>
+            <span class="typing-indicator" id="typing-indicator-${this.chatContainer.id}" style="display: none;">AI正在思考...</span>
           </div>
         </div>
       </div>
@@ -98,13 +107,14 @@ export class ChatManager {
   setupUIElements() {
     console.log('设置UI元素引用...');
     
-    this.inputElement = document.getElementById('chat-input');
-    this.sendButton = document.getElementById('chat-send-btn');
-    this.statusIndicator = document.getElementById('chat-status-indicator');
-    this.statusText = document.getElementById('chat-status-text');
-    this.messagesContainer = document.getElementById('chat-messages');
-    this.typingIndicator = document.getElementById('typing-indicator');
-    this.charCount = document.querySelector('.char-count');
+    const containerId = this.chatContainer.id;
+    this.inputElement = document.getElementById(`chat-input-${containerId}`);
+    this.sendButton = document.getElementById(`chat-send-btn-${containerId}`);
+    this.statusIndicator = this.chatContainer.querySelector('.status-indicator');
+    this.statusText = this.chatContainer.querySelector('.status-text');
+    this.messagesContainer = document.getElementById(`chat-messages-${containerId}`);
+    this.typingIndicator = document.getElementById(`typing-indicator-${containerId}`);
+    this.charCount = this.chatContainer.querySelector('.char-count');
 
     console.log('UI元素状态:', {
       inputElement: !!this.inputElement,
@@ -134,28 +144,66 @@ export class ChatManager {
     }
   }
 
-  // 连接到模板
+  // 连接到模板 - 修复版本
   async connectToTemplate(templateId) {
     try {
       console.log(`正在连接到模板 ${templateId}...`);
       this.updateStatus('connecting', '连接中...');
+      this.connectionRetries = 0;
       
-      // 断开现有连接
-      if (wsClient.isConnected) {
-        wsClient.disconnect();
-        // 等待断开完成
-        await new Promise(resolve => setTimeout(resolve, 100));
-      }
+      // 强制断开现有连接
+      wsClient.disconnect();
       
+      // 等待断开完成
+      await new Promise(resolve => setTimeout(resolve, 200));
+      
+      // 建立新连接
       await wsClient.connect(templateId);
+      
+      // 设置重试机制
+      this.setupConnectionRetry(templateId);
+      
     } catch (error) {
       console.error('连接失败:', error);
-      this.updateStatus('error', '连接失败');
+      this.handleConnectionError(templateId);
+    }
+  }
+
+  // 设置连接重试机制
+  setupConnectionRetry(templateId) {
+    // 如果3秒后还没有收到session_created事件，尝试重连
+    setTimeout(() => {
+      if (!wsClient.sessionId && this.connectionRetries < this.maxRetries) {
+        console.log(`连接超时，尝试重连 (${this.connectionRetries + 1}/${this.maxRetries})`);
+        this.connectionRetries++;
+        this.connectToTemplate(templateId);
+      } else if (this.connectionRetries >= this.maxRetries) {
+        this.updateStatus('error', '连接失败，请检查后台服务');
+      }
+    }, 3000);
+  }
+
+  // 处理连接错误
+  handleConnectionError(templateId) {
+    if (this.connectionRetries < this.maxRetries) {
+      this.connectionRetries++;
+      console.log(`连接失败，${2000}ms后重试 (${this.connectionRetries}/${this.maxRetries})`);
+      this.updateStatus('connecting', `重试中 (${this.connectionRetries}/${this.maxRetries})...`);
+      
+      setTimeout(() => {
+        this.connectToTemplate(templateId);
+      }, 2000);
+    } else {
+      this.updateStatus('error', '连接失败，请检查后台服务');
+      this.showErrorMessage('无法连接到AI服务，请检查后台服务是否正常运行');
     }
   }
 
   // 设置WebSocket事件监听
   setupEventListeners() {
+    // 清除旧的监听器
+    wsClient.eventListeners.clear();
+    
     wsClient.on(WebSocketEvents.CONNECTED, () => {
       console.log('WebSocket连接已建立');
       this.updateStatus('connecting', '建立会话中...');
@@ -164,6 +212,7 @@ export class ChatManager {
     wsClient.on(WebSocketEvents.SESSION_CREATED, (data) => {
       console.log('会话已创建:', data);
       this.updateStatus('connected', '已连接');
+      this.connectionRetries = 0; // 重置重试计数
       
       // 显示AI的首条消息
       if (data.template?.ai_first_message) {
@@ -173,14 +222,12 @@ export class ChatManager {
       }
     });
 
-    wsClient.on(WebSocketEvents.MESSAGE_SENT, (data) => {
-      console.log('消息已发送:', data);
-      // 不在这里添加用户消息，因为在sendMessage方法中已经添加了
-    });
-
     wsClient.on(WebSocketEvents.MESSAGE_RECEIVED, (data) => {
       console.log('收到AI消息:', data);
-      this.addMessage('assistant', data.content);
+      // 只有非流式消息才直接添加
+      if (!this.currentStreamMessageEl) {
+        this.addMessage('assistant', data.content);
+      }
     });
 
     // 流式响应事件处理
@@ -248,12 +295,6 @@ export class ChatManager {
       this.charCount.textContent = `${length}/2000`;
     }
     
-    // 更新发送按钮状态 - 只有在连接状态下才启用
-    if (this.sendButton) {
-      const isConnected = wsClient.isConnected;
-    //   this.sendButton.disabled = !isConnected || length === 0 || length > 2000;
-    }
-    
     // 自动调整文本框高度
     this.autoResizeTextarea(event.target);
   }
@@ -272,7 +313,7 @@ export class ChatManager {
     textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px';
   }
 
-  // 发送消息
+  // 发送消息 - 修复版本
   sendMessage() {
     if (!this.inputElement) return;
     
@@ -281,7 +322,8 @@ export class ChatManager {
     
     // 检查连接状态
     if (!wsClient.isConnected) {
-      this.showErrorMessage('WebSocket未连接，请等待连接建立');
+      this.showErrorMessage('连接已断开，正在重新连接...');
+      this.connectToTemplate(this.currentTemplate);
       return;
     }
     
@@ -294,14 +336,19 @@ export class ChatManager {
     this.clearInput();
     
     // 发送到WebSocket
-    wsClient.sendMessage(content);
-    
-    // 添加到历史记录
-    this.chatHistory.push({
-      role: 'user',
-      content: content,
-      timestamp: new Date().toISOString()
-    });
+    try {
+      wsClient.sendMessage(content);
+      
+      // 添加到历史记录
+      this.chatHistory.push({
+        role: 'user',
+        content: content,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error('发送消息失败:', error);
+      this.showErrorMessage('发送消息失败，请重试');
+    }
   }
 
   // 格式化消息内容
@@ -446,18 +493,9 @@ export class ChatManager {
         error: '#F44336'
       };
 
-      this.statusIndicator.style.color = statusColors[status] || '#757575';
+      this.statusIndicator.style.color = statusColors[status] || '#4CAF50';
+      this.statusIndicator.className = `status-indicator ${status}`;
       this.statusText.textContent = text;
-    }
-    
-    // 更新发送按钮状态
-    if (this.sendButton) {
-      if (status === 'connected') {
-        const inputValue = this.inputElement ? this.inputElement.value.trim() : '';
-        this.sendButton.disabled = inputValue.length === 0;
-      } else {
-        // this.sendButton.disabled = true;
-      }
     }
   }
 
@@ -469,10 +507,6 @@ export class ChatManager {
       if (this.charCount) {
         this.charCount.textContent = '0/2000';
       }
-      if (this.sendButton) {
-        const isConnected = wsClient.isConnected;
-        // this.sendButton.disabled = !isConnected;
-      }
     }
   }
 
@@ -481,12 +515,6 @@ export class ChatManager {
     if (this.messagesContainer) {
       this.messagesContainer.scrollTop = this.messagesContainer.scrollHeight;
     }
-  }
-
-  // 自动调整文本框高度
-  autoResizeTextarea(textarea) {
-    textarea.style.height = 'auto';
-    textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px';
   }
 
   // 清空聊天历史
@@ -511,8 +539,10 @@ export class ChatManager {
 
   // 断开连接
   disconnect() {
+    console.log('断开聊天连接');
     wsClient.disconnect();
     this.currentTemplate = null;
+    this.connectionRetries = 0;
   }
 
   // 切换模板
@@ -527,7 +557,7 @@ export class ChatManager {
       // 延迟重新连接，确保旧连接完全断开
       setTimeout(() => {
         this.connectToTemplate(templateId);
-      }, 200);
+      }, 300);
     }
   }
 
@@ -542,6 +572,9 @@ export class ChatManager {
 
 // 全局聊天管理器实例
 export const chatManager = new ChatManager();
+
+// 将chatManager暴露到全局作用域
+window.chatManager = chatManager;
 
 // 导出给HTML使用的全局函数
 window.ChatManager = {

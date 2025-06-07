@@ -1,0 +1,685 @@
+// src/scenes/IntroductionScene.js - 场景1介绍页面
+export function createIntroductionScene() {
+  return `
+    <div class="ocean-container">
+      <div class="particles" id="particles"></div>
+      <div class="waves"></div>
+      
+      <div class="intro-content">
+        <!-- 标题区域 -->
+        <div class="title-section">
+          <h1 class="game-title">🌊 心灵摆渡人</h1>
+          <p class="subtitle">踏上一场寻找内心力量的奇幻之旅</p>
+        </div>
+
+        <!-- 主体内容区域 -->
+        <div class="main-content">
+          <!-- 左侧装饰区域 -->
+          <div class="left-decoration">
+            <div class="welcome-text">
+              在心灵海洋的深处<br>
+              每一次摆渡都是成长<br>
+              每一份温暖都值得守护
+            </div>
+            <div class="ocean-illustration">
+              🌊
+            </div>
+          </div>
+
+          <!-- 右侧故事区域 -->
+          <div class="right-story">
+            <div class="story-container">
+              <div class="story-section active" id="story-0">
+                <h2 class="section-title">
+                  <span class="section-icon">🌊</span>
+                  神秘的心灵海洋
+                </h2>
+                <p class="section-text">
+                  在这个世界的深处，隐藏着一片名为<span class="highlight">「心灵海洋」</span>的神奇水域。这里不是普通的海洋，而是承载着每个人内心情感、记忆和梦想的特殊空间。每一滴海水都闪烁着生命的光芒，诉说着不同的故事。
+                </p>
+              </div>
+
+              <div class="story-section" id="story-1">
+                <h2 class="section-title">
+                  <span class="section-icon">🐋</span>
+                  古老的传说
+                </h2>
+                <p class="section-text">
+                  传说在世界诞生之初，神秘的<span class="highlight">生命之鲸</span>游弋在这片海洋中，它们美妙的歌声唤醒了万物的灵魂，为生命注入了最初的希望与勇气。虽然生命之鲸已经离去，但它们留下了珍贵的礼物——<span class="highlight">鲸骨舟</span>，这些神奇的船只能够在心灵风暴中保持稳定，守护着最宝贵的生命力量。
+                </p>
+              </div>
+
+              <div class="story-section" id="story-2">
+                <h2 class="section-title">
+                  <span class="section-icon">⭐</span>
+                  闪耀的生命力
+                </h2>
+                <p class="section-text">
+                  <span class="highlight">生命力</span>是真实存在的闪光精华，它们原本在每个人心中自由流淌，给予我们勇气、希望和前进的动力。但当内心的风暴来临时，这些珍贵的生命力会迷失在茫茫海洋中，变得虚弱暗淡。如果长时间得不到帮助，它们就会慢慢消散...
+                </p>
+              </div>
+
+              <div class="story-section" id="story-3">
+                <h2 class="section-title">
+                  <span class="section-icon">🏮</span>
+                  你的特殊使命
+                </h2>
+                <p class="section-text">
+                  <span class="highlight">心灵摆渡人</span>是被古老鲸歌选中的特殊存在。你不是独自对抗风暴的孤勇者，你是智慧的<span class="highlight">引路人</span>——在复杂的心灵海域中寻找迷失的生命力，引导它们回到安全的港湾。
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 底部统一控制区域 -->
+        <div class="bottom-controls">
+          <!-- 故事导航控制 -->
+          <div class="story-navigation">
+            <button class="nav-btn prev-btn" onclick="IntroductionManager.previousStory()" disabled>
+              ← 上一页
+            </button>
+            <div class="story-indicators">
+              <span class="indicator active" onclick="IntroductionManager.goToStory(0)"></span>
+              <span class="indicator" onclick="IntroductionManager.goToStory(1)"></span>
+              <span class="indicator" onclick="IntroductionManager.goToStory(2)"></span>
+              <span class="indicator" onclick="IntroductionManager.goToStory(3)"></span>
+            </div>
+            <button class="nav-btn next-btn" onclick="IntroductionManager.nextStory()">
+              下一页 →
+            </button>
+          </div>
+
+          <!-- 游戏控制区域 -->
+          <div class="game-controls">
+            <button class="auto-btn" id="autoPlayBtn" onclick="IntroductionManager.toggleAutoPlay()">
+              ⏸️ 暂停自动播放
+            </button>
+            <button class="start-button" onclick="IntroductionManager.startJourney()">
+              🚢 开始摆渡之旅
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <style>
+      .ocean-container {
+        position: relative;
+        min-height: 100vh;
+        overflow: hidden;
+        color: white;
+      }
+
+      /* 海洋波浪动画 */
+      .waves {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 100px;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none"><path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z" fill="%23ffffff" fill-opacity="0.1"/></svg>') repeat-x;
+        animation: wave 10s ease-in-out infinite;
+      }
+
+      .waves::before {
+        content: '';
+        position: absolute;
+        top: -10px;
+        left: 0;
+        width: 100%;
+        height: 100px;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none"><path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z" fill="%23ffffff" fill-opacity="0.05"/></svg>') repeat-x;
+        animation: wave 15s ease-in-out infinite reverse;
+      }
+
+      @keyframes wave {
+        0%, 100% { transform: translateX(0); }
+        50% { transform: translateX(-50px); }
+      }
+
+      /* 星星和粒子效果 */
+      .particles {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+      }
+
+      .particle {
+        position: absolute;
+        background: rgba(255, 255, 255, 0.8);
+        border-radius: 50%;
+        animation: float 6s ease-in-out infinite;
+      }
+
+      @keyframes float {
+        0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0.7; }
+        50% { transform: translateY(-20px) rotate(180deg); opacity: 1; }
+      }
+
+      /* 主要内容区域 */
+      .intro-content {
+        position: relative;
+        z-index: 10;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 60px 20px;
+        display: flex;
+        flex-direction: column;
+        min-height: calc(100vh - 120px);
+      }
+
+      /* 上部标题区域 */
+      .title-section {
+        text-align: center;
+        margin-bottom: 40px;
+      }
+
+      /* 主体内容区域 */
+      .main-content {
+        display: flex;
+        flex: 1;
+        gap: 40px;
+        align-items: center;
+      }
+
+      /* 左侧装饰区域 */
+      .left-decoration {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+      }
+
+      .welcome-text {
+        font-size: 1.5rem;
+        color: #b3e5fc;
+        margin-bottom: 30px;
+        line-height: 1.6;
+      }
+
+      .ocean-illustration {
+        width: 200px;
+        height: 200px;
+        background: radial-gradient(circle, rgba(79, 195, 247, 0.3) 0%, rgba(41, 182, 246, 0.1) 70%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 4rem;
+        animation: oceanPulse 3s ease-in-out infinite;
+        border: 2px solid rgba(79, 195, 247, 0.3);
+      }
+
+      @keyframes oceanPulse {
+        0%, 100% { transform: scale(1); box-shadow: 0 0 20px rgba(79, 195, 247, 0.3); }
+        50% { transform: scale(1.05); box-shadow: 0 0 40px rgba(79, 195, 247, 0.5); }
+      }
+
+      /* 右侧故事区域 */
+      .right-story {
+        flex: 1;
+        max-width: 500px;
+      }
+
+      .game-title {
+        font-size: 3.5rem;
+        font-weight: bold;
+        margin-bottom: 20px;
+        background: linear-gradient(45deg, #64b5f6, #81c784, #ffb74d);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        text-shadow: 0 0 30px rgba(100, 181, 246, 0.5);
+        animation: titleGlow 3s ease-in-out infinite alternate;
+      }
+
+      @keyframes titleGlow {
+        from { filter: brightness(1); }
+        to { filter: brightness(1.2); }
+      }
+
+      .subtitle {
+        font-size: 1.3rem;
+        margin-bottom: 40px;
+        color: #b3e5fc;
+        opacity: 0;
+        animation: fadeInUp 1s ease-out 0.5s forwards;
+      }
+
+      .story-container {
+        position: relative;
+        height: 300px;
+      }
+
+      .story-section {
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        padding: 30px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        opacity: 0;
+        transform: translateX(50px);
+        transition: all 0.6s ease-in-out;
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+
+      .story-section.active {
+        opacity: 1;
+        transform: translateX(0);
+      }
+
+      .story-section.prev {
+        opacity: 0;
+        transform: translateX(-50px);
+      }
+
+      /* 底部控制区域 */
+      .bottom-controls {
+        margin-top: auto;
+        padding-top: 40px;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        align-items: center;
+      }
+
+      /* 导航控制样式 */
+      .story-navigation {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 30px;
+        width: 100%;
+      }
+
+      .nav-btn {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: white;
+        padding: 12px 24px;
+        border-radius: 25px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(10px);
+        min-width: 100px;
+      }
+
+      .nav-btn:hover:not(:disabled) {
+        background: rgba(79, 195, 247, 0.3);
+        border-color: #4fc3f7;
+        transform: translateY(-2px);
+      }
+
+      .nav-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      .story-indicators {
+        display: flex;
+        gap: 12px;
+      }
+
+      .indicator {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.3);
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .indicator.active {
+        background: #4fc3f7;
+        box-shadow: 0 0 10px rgba(79, 195, 247, 0.5);
+        transform: scale(1.2);
+      }
+
+      .indicator:hover {
+        background: rgba(79, 195, 247, 0.7);
+        transform: scale(1.1);
+      }
+
+      /* 游戏控制按钮区域 */
+      .game-controls {
+        display: flex;
+        gap: 20px;
+        align-items: center;
+      }
+
+      /* 自动播放控制 */
+      .auto-btn {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: white;
+        padding: 10px 20px;
+        border-radius: 25px;
+        cursor: pointer;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(10px);
+      }
+
+      .auto-btn:hover {
+        background: rgba(129, 199, 132, 0.3);
+        border-color: #81c784;
+      }
+
+      .section-title {
+        font-size: 1.8rem;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+      }
+
+      .section-icon {
+        font-size: 2rem;
+        animation: pulse 2s infinite;
+      }
+
+      @keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+      }
+
+      .section-text {
+        font-size: 1.1rem;
+        line-height: 1.8;
+        text-align: left;
+        color: #e3f2fd;
+      }
+
+      .highlight {
+        color: #81c784;
+        font-weight: bold;
+        text-shadow: 0 0 10px rgba(129, 199, 132, 0.5);
+      }
+
+      .start-button {
+        margin-top: 50px;
+        padding: 18px 50px;
+        font-size: 1.3rem;
+        background: linear-gradient(45deg, #4fc3f7, #29b6f6);
+        border: none;
+        border-radius: 50px;
+        color: white;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 8px 25px rgba(79, 195, 247, 0.4);
+        opacity: 0;
+        animation: fadeInUp 1s ease-out 1.8s forwards;
+      }
+
+      .start-button:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 35px rgba(79, 195, 247, 0.6);
+        background: linear-gradient(45deg, #29b6f6, #1976d2);
+      }
+
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* 响应式设计 */
+      @media (max-width: 768px) {
+        .game-title {
+          font-size: 2.5rem;
+        }
+        
+        .intro-content {
+          padding: 40px 15px;
+        }
+        
+        .main-content {
+          flex-direction: column;
+          gap: 20px;
+        }
+
+        .left-decoration {
+          order: 2;
+        }
+
+        .right-story {
+          order: 1;
+          max-width: 100%;
+        }
+
+        .welcome-text {
+          font-size: 1.2rem;
+          margin-bottom: 20px;
+        }
+
+        .ocean-illustration {
+          width: 150px;
+          height: 150px;
+          font-size: 3rem;
+        }
+        
+        .story-section {
+          padding: 20px;
+          height: 250px;
+        }
+        
+        .section-title {
+          font-size: 1.3rem;
+        }
+        
+        .section-text {
+          font-size: 0.9rem;
+        }
+
+        .story-navigation {
+          gap: 15px;
+        }
+
+        .nav-btn {
+          padding: 10px 16px;
+          font-size: 0.9rem;
+          min-width: 80px;
+        }
+
+        .indicator {
+          width: 10px;
+          height: 10px;
+        }
+
+        .game-controls {
+          flex-direction: column;
+          gap: 15px;
+        }
+
+        .start-button {
+          width: 100%;
+          max-width: 300px;
+        }
+      }
+    </style>
+
+    <script>
+      // 介绍页面管理器
+      class IntroductionManager {
+        static currentStory = 0;
+        static totalStories = 4;
+        static autoPlayInterval = null;
+        static isAutoPlaying = true;
+
+        static init() {
+          this.createParticles();
+          this.showStory(0);
+          this.startAutoPlay();
+          this.setupKeyboardControls();
+        }
+
+        // 显示指定故事
+        static showStory(index) {
+          const stories = document.querySelectorAll('.story-section');
+          const indicators = document.querySelectorAll('.indicator');
+          
+          // 隐藏所有故事
+          stories.forEach((story, i) => {
+            story.classList.remove('active', 'prev');
+            if (i < index) {
+              story.classList.add('prev');
+            } else if (i === index) {
+              story.classList.add('active');
+            }
+          });
+          
+          // 更新指示器
+          indicators.forEach((indicator, i) => {
+            indicator.classList.toggle('active', i === index);
+          });
+          
+          // 更新导航按钮状态
+          const prevBtn = document.querySelector('.prev-btn');
+          const nextBtn = document.querySelector('.next-btn');
+          if (prevBtn) prevBtn.disabled = index === 0;
+          if (nextBtn) nextBtn.disabled = index === this.totalStories - 1;
+          
+          this.currentStory = index;
+        }
+
+        // 下一个故事
+        static nextStory() {
+          if (this.currentStory < this.totalStories - 1) {
+            this.showStory(this.currentStory + 1);
+          }
+        }
+
+        // 上一个故事
+        static previousStory() {
+          if (this.currentStory > 0) {
+            this.showStory(this.currentStory - 1);
+          }
+        }
+
+        // 跳转到指定故事
+        static goToStory(index) {
+          this.showStory(index);
+          this.resetAutoPlay();
+        }
+
+        // 自动播放功能
+        static startAutoPlay() {
+          this.autoPlayInterval = setInterval(() => {
+            if (this.currentStory < this.totalStories - 1) {
+              this.nextStory();
+            } else {
+              this.showStory(0); // 循环播放
+            }
+          }, 4000); // 每4秒切换一次
+        }
+
+        static stopAutoPlay() {
+          if (this.autoPlayInterval) {
+            clearInterval(this.autoPlayInterval);
+          }
+        }
+
+        static toggleAutoPlay() {
+          const btn = document.getElementById('autoPlayBtn');
+          if (this.isAutoPlaying) {
+            this.stopAutoPlay();
+            if (btn) btn.textContent = '▶️ 开始自动播放';
+            this.isAutoPlaying = false;
+          } else {
+            this.startAutoPlay();
+            if (btn) btn.textContent = '⏸️ 暂停自动播放';
+            this.isAutoPlaying = true;
+          }
+        }
+
+        static resetAutoPlay() {
+          if (this.isAutoPlaying) {
+            this.stopAutoPlay();
+            this.startAutoPlay();
+          }
+        }
+
+        // 键盘控制
+        static setupKeyboardControls() {
+          document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') {
+              this.previousStory();
+              this.resetAutoPlay();
+            } else if (e.key === 'ArrowRight') {
+              this.nextStory();
+              this.resetAutoPlay();
+            }
+          });
+        }
+
+        // 创建粒子效果
+        static createParticles() {
+          const particlesContainer = document.getElementById('particles');
+          if (!particlesContainer) return;
+          
+          const particleCount = 30;
+          
+          for (let i = 0; i < particleCount; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            
+            // 随机大小和位置
+            const size = Math.random() * 4 + 2;
+            particle.style.width = size + 'px';
+            particle.style.height = size + 'px';
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.top = Math.random() * 100 + '%';
+            
+            // 随机动画延迟
+            particle.style.animationDelay = Math.random() * 6 + 's';
+            particle.style.animationDuration = (Math.random() * 4 + 4) + 's';
+            
+            particlesContainer.appendChild(particle);
+          }
+        }
+
+        // 开始摆渡之旅
+        static startJourney() {
+          // 添加点击动画效果
+          const button = document.querySelector('.start-button');
+          if (button) {
+            button.style.transform = 'scale(0.95)';
+            button.style.transition = 'transform 0.1s ease';
+            
+            setTimeout(() => {
+              button.style.transform = 'scale(1)';
+              // 切换到场景2
+              if (window.EnhancedSceneManager) {
+                window.EnhancedSceneManager.switchTo(2);
+              }
+            }, 100);
+          }
+        }
+      }
+
+      // 全局暴露管理器
+      window.IntroductionManager = IntroductionManager;
+
+      // 页面加载完成后初始化
+      setTimeout(() => {
+        if (window.IntroductionManager) {
+          window.IntroductionManager.init();
+        }
+      }, 100);
+    </script>
+    `;}

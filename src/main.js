@@ -1,6 +1,7 @@
-// src/main.js - 重构版本，使用新的增强场景管理器
+// src/main.js - 修复全局变量问题
 import { Navigation } from './components/Navigation.js';
 import { enhancedSceneManager } from './components/EnhancedSceneManager.js';
+import { chatManager } from './components/ChatManager.js'; // 确保导入chatManager
 import { PainTool } from './components/PainTool.js';
 import { EmotionRecognition } from './components/EmotionRecognition.js';
 import { CognitiveTool } from './components/CognitiveTool.js';
@@ -29,7 +30,7 @@ window.addEventListener('beforeunload', () => {
 });
 
 // 系统初始化
-console.log('🌊 心灵旅途系统已启动 - 重构版本');
+console.log('🌊 心灵旅途系统已启动 - 修复版本');
 console.log('⛵ 从海上启程，经过治愈之港、情感之岛、认知灯塔、自我圣殿，最终到达希望彼岸');
 console.log('💡 使用数字键1-6开始您的心灵之旅');
 console.log('🧭 点击左上角波浪图标或按空格键打开导航');
@@ -43,6 +44,7 @@ Navigation.updateActive(1);
 window.Navigation = Navigation;
 window.SceneManager = enhancedSceneManager; // 兼容旧代码
 window.EnhancedSceneManager = window.EnhancedSceneManager; // 已在EnhancedSceneManager.js中定义
+window.chatManager = chatManager; // 确保chatManager全局可用
 window.PainTool = PainTool;
 window.EmotionRecognition = EmotionRecognition;
 window.CognitiveTool = CognitiveTool;
@@ -84,6 +86,15 @@ window.DebugTools = {
     console.log('- 导航状态:', Navigation.isVisible ? '显示' : '隐藏');
     console.log('- 聊天历史数量:', enhancedSceneManager.getChatHistory().length);
     console.log('- 可用场景:', Object.keys(enhancedSceneManager.sceneConfig));
+  },
+  
+  // 测试聊天功能
+  testChat: () => {
+    console.log('🧪 测试聊天功能:');
+    console.log('- chatManager存在:', !!window.chatManager);
+    console.log('- ChatManager存在:', !!window.ChatManager);
+    console.log('- 当前模板:', window.chatManager?.currentTemplate);
+    console.log('- 聊天历史:', window.chatManager?.getHistory());
   }
 };
 
@@ -94,9 +105,11 @@ if (window.location.hostname === 'localhost' || window.location.hostname === '12
   console.log('📊 显示状态: window.DebugTools.showStatus()');
   console.log('🔄 重置系统: window.DebugTools.reset()');
   console.log('📤 导出数据: window.DebugTools.exportData()');
+  console.log('💬 测试聊天: window.DebugTools.testChat()');
   
   // 自动显示状态（延迟执行）
   setTimeout(() => {
     window.DebugTools.showStatus();
+    window.DebugTools.testChat();
   }, 1000);
 }
