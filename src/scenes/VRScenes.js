@@ -1,4 +1,4 @@
-// src/scenes/VRScenes.js - 支持射线交互的版本
+// src/scenes/VRScenes.js - 修复版VR场景，支持正确的射线交互
 export function createVRScenes() {
   const camera = document.getElementById('main-camera');
   
@@ -26,21 +26,22 @@ export function createVRScenes() {
     camera.appendChild(cursor);
   }
 
-  // 场景1: 心灵摆渡人场景 - 支持点击交互
+  // 场景1: 心灵摆渡人场景 - 支持射线交互
   const scene1Container = document.createElement('a-entity');
   scene1Container.id = 'scene1-container';
   scene1Container.setAttribute('visible', true);
   
   scene1Container.innerHTML = `
-    <!-- 心灵摆渡人模型 - 添加点击交互 -->
+    <!-- 心灵摆渡人模型 - 添加interactive组件 -->
     <a-entity 
       id="ferryman-model" 
       gltf-model="#ferrymanModel" 
       position="1 -0.5 -1.5" 
       rotation="0 -130 0" 
       scale="1 1 1"
-      class="clickable"
-      cursor-listener>
+      interactive
+      hover-scale="scale: 1.1; duration: 300"
+      class="clickable">
       
       <!-- 点击提示文字 -->
       <a-text 
@@ -83,51 +84,6 @@ export function createVRScenes() {
   `;
   
   camera.appendChild(scene1Container);
-  
-  // 添加点击事件监听器
-  const ferrymanModel = scene1Container.querySelector('#ferryman-model');
-  if (ferrymanModel) {
-    // 添加hover效果
-    ferrymanModel.addEventListener('mouseenter', function() {
-      this.setAttribute('animation__hover', 'property: scale; to: 1.1 1.1 1.1; dur: 300; easing: easeOutQuad');
-      const hint = this.querySelector('#click-hint');
-      if (hint) {
-        hint.setAttribute('color', '#4fc3f7');
-        hint.setAttribute('animation__glow', 'property: opacity; to: 1; from: 0.7; loop: true; dur: 800; dir: alternate');
-      }
-    });
-
-    ferrymanModel.addEventListener('mouseleave', function() {
-      this.setAttribute('animation__hover', 'property: scale; to: 1 1 1; dur: 300; easing: easeOutQuad');
-      const hint = this.querySelector('#click-hint');
-      if (hint) {
-        hint.setAttribute('color', '#ffffff');
-        hint.removeAttribute('animation__glow');
-      }
-    });
-
-    // 添加点击事件
-    ferrymanModel.addEventListener('click', function() {
-      console.log('摆渡人被点击！');
-      
-      // 点击动画
-      this.setAttribute('animation__click', 'property: scale; to: 0.95 0.95 0.95; dur: 150; dir: alternate; easing: easeInQuad');
-      
-      // 隐藏提示文字
-      const hint = this.querySelector('#click-hint');
-      if (hint) {
-        hint.setAttribute('animation__hide', 'property: opacity; to: 0; dur: 500');
-      }
-      
-      // 延迟显示介绍卡片
-      setTimeout(() => {
-        if (window.enhancedSceneManager) {
-          window.enhancedSceneManager.showVRIntroductionCards();
-        }
-      }, 600);
-    });
-  }
-  
   console.log('✅ 场景1 (心灵摆渡人) VR容器已创建');
 
   // 场景2: 疼痛可视化VR展示
@@ -266,23 +222,102 @@ export function createVRScenes() {
 
   console.log('🎬 所有VR场景容器创建完成');
   
-  // 注册cursor-listener组件
-  if (typeof AFRAME !== 'undefined') {
-    AFRAME.registerComponent('cursor-listener', {
+  // 等待A-Frame组件加载完成后注册交互系统
+  setTimeout(() => {
+    registerVRInteractionComponents();
+    initializeVRInteractionSystem();
+  }, 1000);
+  
+  // 触发场景初始化完成事件
+  window.dispatchEvent(new CustomEvent('vrScenesReady'));
+}
+
+// 注册VR交互组件
+function registerVRInteractionComponents() {
+  if (typeof AFRAME === 'undefined') {
+    console.warn('A-Frame未加载，跳过组件注册');
+    return;
+  }
+
+  // 注册可交互组件
+  if (!AFRAME.components.interactive) {
+    AFRAME.registerComponent('interactive', {
+      schema: {
+        enabled: { type: 'boolean', default: true }
+      },
+
       init: function () {
-        this.el.addEventListener('mouseenter', function (evt) {
-          console.log('鼠标进入:', this.id || this.tagName);
+        this.isHovered = false;
+        this.element = this.el;
+        
+        // 监听自定义射线交互事件
+        this.element.addEventListener('raycaster-intersected', () => {
+          if (!this.isHovered) {
+            this.isHovered = true;
+            this.element.emit('mouseenter');
+          }
         });
-        this.el.addEventListener('mouseleave', function (evt) {
-          console.log('鼠标离开:', this.id || this.tagName);
+
+        this.element.addEventListener('raycaster-intersected-cleared', () => {
+          if (this.isHovered) {
+            this.isHovered = false;
+            this.element.emit('mouseleave');
+          }
         });
-        this.el.addEventListener('click', function (evt) {
-          console.log('点击:', this.id || this.tagName);
+
+        this.element.addEventListener('raycaster-clicked', () => {
+          this.element.emit('click');
+        });
+      },
+
+      remove: function () {
+        // 清理事件监听器
+      }
+    });
+  }
+
+  // 注册hover缩放效果组件
+  if (!AFRAME.components['hover-scale']) {
+    AFRAME.registerComponent('hover-scale', {
+      schema: {
+        scale: { type: 'number', default: 1.1 },
+        duration: { type: 'number', default: 300 }
+      },
+
+      init: function () {
+        this.originalScale = this.el.getAttribute('scale') || { x: 1, y: 1, z: 1 };
+        
+        this.el.addEventListener('mouseenter', () => {
+          this.el.setAttribute('animation__hover', {
+            property: 'scale',
+            to: `${this.data.scale} ${this.data.scale} ${this.data.scale}`,
+            dur: this.data.duration
+          });
+        });
+
+        this.el.addEventListener('mouseleave', () => {
+          this.el.setAttribute('animation__hover', {
+            property: 'scale',
+            to: `${this.originalScale.x} ${this.originalScale.y} ${this.originalScale.z}`,
+            dur: this.data.duration
+          });
         });
       }
     });
   }
-  
-  // 触发场景初始化完成事件
-  window.dispatchEvent(new CustomEvent('vrScenesReady'));
+
+  console.log('VR交互组件已注册');
+}
+
+// 初始化VR交互系统
+function initializeVRInteractionSystem() {
+  // 导入并初始化VR交互系统
+  import('../vr/VRInteractionSystem.js').then(({ VRInteractionSystem }) => {
+    if (!window.vrInteractionSystem) {
+      window.vrInteractionSystem = new VRInteractionSystem();
+      console.log('VR交互系统已初始化');
+    }
+  }).catch(error => {
+    console.error('VR交互系统加载失败:', error);
+  });
 }
