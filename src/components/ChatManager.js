@@ -79,7 +79,7 @@ export class ChatManager {
               rows="1"
               maxlength="2000"
             ></textarea>
-            <button id="chat-send-btn" class="send-button" disabled>
+            <button id="chat-send-btn" class="send-button">
               <span class="send-icon">🚀</span>
             </button>
           </div>
@@ -251,7 +251,7 @@ export class ChatManager {
     // 更新发送按钮状态 - 只有在连接状态下才启用
     if (this.sendButton) {
       const isConnected = wsClient.isConnected;
-      this.sendButton.disabled = !isConnected || length === 0 || length > 2000;
+    //   this.sendButton.disabled = !isConnected || length === 0 || length > 2000;
     }
     
     // 自动调整文本框高度
@@ -456,7 +456,7 @@ export class ChatManager {
         const inputValue = this.inputElement ? this.inputElement.value.trim() : '';
         this.sendButton.disabled = inputValue.length === 0;
       } else {
-        this.sendButton.disabled = true;
+        // this.sendButton.disabled = true;
       }
     }
   }
@@ -471,7 +471,7 @@ export class ChatManager {
       }
       if (this.sendButton) {
         const isConnected = wsClient.isConnected;
-        this.sendButton.disabled = !isConnected;
+        // this.sendButton.disabled = !isConnected;
       }
     }
   }

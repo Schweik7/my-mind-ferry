@@ -454,4 +454,294 @@
   .chat-input-container {
     padding: 12px 15px;
   }
+  /* VR场景聊天界面样式 - 添加到 src/styles/chat.css 的末尾 */
+
+/* VR场景聊天覆盖层 */
+.vr-scene-chat-overlay {
+  position: fixed;
+  top: 50%;
+  right: 20px;
+  transform: translateY(-50%);
+  z-index: 1000;
+  max-width: 400px;
+  width: 100%;
+}
+
+/* VR聊天切换按钮 */
+.vr-chat-toggle-btn {
+  background: rgba(255, 255, 255, 0.95);
+  border: none;
+  border-radius: 25px;
+  padding: 15px 25px;
+  cursor: pointer;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(15px);
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 15px;
+  user-select: none;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.vr-chat-toggle-btn:hover {
+  background: rgba(255, 255, 255, 1);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+  border-color: rgba(102, 126, 234, 0.3);
+}
+
+.vr-chat-toggle-btn .chat-icon {
+  font-size: 1.4em;
+  animation: vrChatPulse 2.5s infinite;
+}
+
+.vr-chat-toggle-btn .chat-text {
+  font-weight: 700;
+  color: #333;
+  font-size: 1em;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+@keyframes vrChatPulse {
+  0%, 100% { 
+    transform: scale(1); 
+    filter: brightness(1);
+  }
+  50% { 
+    transform: scale(1.15); 
+    filter: brightness(1.2);
+  }
+}
+
+/* VR聊天容器 */
+.vr-chat-container {
+  background: rgba(255, 255, 255, 0.98);
+  border-radius: 25px;
+  backdrop-filter: blur(20px);
+  box-shadow: 0 15px 50px rgba(0, 0, 0, 0.2);
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  overflow: hidden;
+  animation: vrChatSlideIn 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+@keyframes vrChatSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(100%) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+/* VR场景特定的聊天界面样式覆盖 */
+.vr-chat-container .chat-interface {
+  height: 550px;
+  max-height: 75vh;
+}
+
+.vr-chat-container .chat-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 18px 25px;
+  position: relative;
+  overflow: hidden;
+}
+
+.vr-chat-container .chat-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  animation: vrHeaderShine 3s infinite;
+}
+
+@keyframes vrHeaderShine {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.vr-chat-container .status-text {
+  font-weight: 700;
+  font-size: 1em;
+}
+
+.vr-chat-container .chat-messages {
+  background: linear-gradient(180deg, 
+    rgba(248, 250, 252, 0.9) 0%, 
+    rgba(241, 245, 249, 0.95) 50%,
+    rgba(235, 240, 246, 0.9) 100%);
+  padding: 20px;
+}
+
+.vr-chat-container .welcome-message {
+  background: linear-gradient(135deg, 
+    rgba(102, 126, 234, 0.15) 0%, 
+    rgba(118, 75, 162, 0.15) 100%);
+  border: 2px solid rgba(102, 126, 234, 0.3);
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.1);
+}
+
+.vr-chat-container .welcome-message .message-avatar {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);
+}
+
+.vr-chat-container .user-message .message-text {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2);
+}
+
+.vr-chat-container .assistant-message .message-text {
+  background: rgba(255, 255, 255, 0.95);
+  border-left: 4px solid #667eea;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.vr-chat-container .send-button {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2);
+}
+
+.vr-chat-container .send-button:enabled:hover {
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.vr-chat-container #chat-input {
+  background: rgba(255, 255, 255, 0.9);
+  border: 2px solid rgba(102, 126, 234, 0.2);
+  backdrop-filter: blur(10px);
+}
+
+.vr-chat-container #chat-input:focus {
+  border-color: #667eea;
+  box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15);
+  background: rgba(255, 255, 255, 1);
+}
+
+/* VR场景特定的动画效果 */
+.vr-chat-container .message {
+  animation: vrMessageSlideIn 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+@keyframes vrMessageSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(15px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.vr-chat-container .streaming-text::after {
+  background: #667eea;
+  box-shadow: 0 0 10px rgba(102, 126, 234, 0.5);
+}
+
+/* VR场景响应式设计 */
+@media (max-width: 768px) {
+  .vr-scene-chat-overlay {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    left: 20px;
+    top: auto;
+    transform: none;
+    max-width: none;
+  }
+
+  .vr-chat-container .chat-interface {
+    height: 450px;
+  }
+
+  .vr-chat-toggle-btn {
+    width: 100%;
+    justify-content: center;
+    padding: 12px 20px;
+  }
+
+  .vr-chat-toggle-btn .chat-text {
+    font-size: 0.9em;
+  }
+}
+
+@media (max-width: 480px) {
+  .vr-scene-chat-overlay {
+    bottom: 10px;
+    right: 10px;
+    left: 10px;
+  }
+
+  .vr-chat-container {
+    border-radius: 20px;
+  }
+
+  .vr-chat-container .chat-interface {
+    height: 400px;
+  }
+
+  .vr-chat-container .chat-header {
+    padding: 15px 20px;
+  }
+
+  .vr-chat-container .chat-messages {
+    padding: 15px;
+  }
+}
+
+/* VR场景特殊效果 */
+.vr-chat-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at 30% 20%, rgba(102, 126, 234, 0.05) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.vr-chat-container .chat-interface {
+  position: relative;
+  z-index: 2;
+}
+
+/* VR场景光效动画 */
+.vr-chat-toggle-btn::after {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(45deg, #667eea, #764ba2, #667eea);
+  border-radius: 27px;
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.vr-chat-toggle-btn:hover::after {
+  opacity: 0.3;
+  animation: vrButtonGlow 2s infinite;
+}
+
+@keyframes vrButtonGlow {
+  0%, 100% { 
+    background: linear-gradient(45deg, #667eea, #764ba2, #667eea);
+  }
+  50% { 
+    background: linear-gradient(45deg, #764ba2, #667eea, #764ba2);
+  }
+}
 }

@@ -1,4 +1,4 @@
-// src/components/EnhancedSceneManager.js
+// src/components/EnhancedSceneManager.js - 修复版本
 import { chatManager } from './ChatManager.js';
 import { createPainVisualizationScene } from '../scenes/PainVisualizationScene.js';
 import { createEmotionRecognitionScene } from '../scenes/EmotionRecognitionScene.js';
@@ -24,7 +24,8 @@ export class EnhancedSceneManager {
         containerIds: ['scene1-container'],
         skyTexture: '#skyTexture1',
         hasChat: true,
-        hasTool: false
+        hasTool: false,
+        isVRScene: true // 标记为VR场景
       },
       2: {
         name: '治愈之港',
@@ -34,7 +35,8 @@ export class EnhancedSceneManager {
         skyTexture: '#skyTexture2',
         hasChat: true,
         hasTool: true,
-        toolComponent: 'PainTool'
+        toolComponent: 'PainTool',
+        isVRScene: false
       },
       3: {
         name: '情感之岛',
@@ -43,7 +45,8 @@ export class EnhancedSceneManager {
         panelId: 'emotion-recognition-panel',
         hasChat: true,
         hasTool: true,
-        toolComponent: 'EmotionRecognition'
+        toolComponent: 'EmotionRecognition',
+        isVRScene: false
       },
       4: {
         name: '认知灯塔',
@@ -53,7 +56,8 @@ export class EnhancedSceneManager {
         skyTexture: '#skyTexture4',
         hasChat: true,
         hasTool: true,
-        toolComponent: 'CognitiveTool'
+        toolComponent: 'CognitiveTool',
+        isVRScene: false
       },
       5: {
         name: '自我圣殿',
@@ -63,7 +67,8 @@ export class EnhancedSceneManager {
         skyTexture: '#skyTexture5',
         hasChat: true,
         hasTool: true,
-        toolComponent: 'SelfSanctuary'
+        toolComponent: 'SelfSanctuary',
+        isVRScene: false
       },
       6: {
         name: '希望彼岸',
@@ -71,7 +76,8 @@ export class EnhancedSceneManager {
         containerIds: ['scene6-container'],
         skyTexture: '#skyTexture6',
         hasChat: true,
-        hasTool: false
+        hasTool: false,
+        isVRScene: true // 标记为VR场景
       }
     };
 
@@ -83,6 +89,11 @@ export class EnhancedSceneManager {
     console.log('🎬 增强版场景管理器初始化');
     this.setupKeyboardControls();
     this.setupVRScenes();
+    
+    // 确保默认场景正确显示
+    setTimeout(() => {
+      this.initializeScene(1);
+    }, 100);
   }
 
   // 切换到指定场景
@@ -126,27 +137,95 @@ export class EnhancedSceneManager {
     const config = this.sceneConfig[sceneNumber];
     
     try {
-      // 创建场景内容
-      await this.createSceneContent(sceneNumber);
-      
-      // 显示VR容器
-      this.showVRContainers(config.containerIds);
-      
       // 设置天空盒
       this.setSkyTexture(config.skyTexture);
       
-      // 初始化工具组件
-      if (config.hasTool && config.toolComponent) {
-        this.initializeToolComponent(config.toolComponent);
-      }
-      
-      // 初始化聊天功能
-      if (config.hasChat) {
-        await this.initializeChat(sceneNumber, config);
+      if (config.isVRScene) {
+        // VR场景处理
+        this.showVRContainers(config.containerIds);
+        // 为VR场景创建聊天界面
+        if (config.hasChat) {
+          await this.createVRSceneChat(sceneNumber, config);
+        }
+      } else {
+        // 普通2D场景处理
+        await this.createSceneContent(sceneNumber);
+        this.showVRContainers(config.containerIds);
+        
+        // 初始化工具组件
+        if (config.hasTool && config.toolComponent) {
+          this.initializeToolComponent(config.toolComponent);
+        }
+        
+        // 初始化聊天功能
+        if (config.hasChat) {
+          await this.initializeChat(sceneNumber, config);
+        }
       }
 
     } catch (error) {
       console.error(`场景 ${sceneNumber} 初始化失败:`, error);
+    }
+  }
+
+  // 为VR场景创建聊天界面
+  async createVRSceneChat(sceneNumber, config) {
+    // 检查是否已经存在VR聊天界面
+    let vrChatContainer = document.getElementById('vr-scene-chat');
+    
+    if (!vrChatContainer) {
+      // 创建VR场景的聊天界面
+      vrChatContainer = document.createElement('div');
+      vrChatContainer.id = 'vr-scene-chat';
+      vrChatContainer.className = 'vr-scene-chat-overlay';
+      vrChatContainer.innerHTML = `
+        <div class="vr-chat-toggle-btn" onclick="EnhancedSceneManager.toggleVRChat()">
+          <span class="chat-icon">💬</span>
+          <span class="chat-text">与${config.name}对话</span>
+        </div>
+        <div class="vr-chat-container" id="vr-chat-container" style="display: none;">
+          <!-- 聊天界面将在这里动态生成 -->
+        </div>
+      `;
+      
+      // 添加样式
+      vrChatContainer.style.cssText = `
+        position: fixed;
+        top: 50%;
+        right: 20px;
+        transform: translateY(-50%);
+        z-index: 1000;
+        max-width: 400px;
+        width: 100%;
+      `;
+      
+      document.body.appendChild(vrChatContainer);
+    }
+    
+    // 更新聊天按钮文本
+    const chatText = vrChatContainer.querySelector('.chat-text');
+    if (chatText) {
+      chatText.textContent = `与${config.name}对话`;
+    }
+    
+    // 确保VR聊天界面可见
+    vrChatContainer.style.display = 'block';
+    
+    // 初始化聊天功能
+    if (config.hasChat) {
+      setTimeout(() => {
+        try {
+          chatManager.disconnect();
+          const chatContainer = document.getElementById('vr-chat-container');
+          if (chatContainer) {
+            chatContainer.innerHTML = '';
+            chatManager.initChatInterface('vr-chat-container', config.templateId);
+          }
+          console.log(`✅ VR场景 ${sceneNumber} 聊天功能初始化完成`);
+        } catch (error) {
+          console.error(`VR场景 ${sceneNumber} 聊天功能初始化失败:`, error);
+        }
+      }, 200);
     }
   }
 
@@ -304,6 +383,12 @@ export class EnhancedSceneManager {
       panel.style.display = 'none';
     });
 
+    // 隐藏VR聊天界面
+    const vrChat = document.getElementById('vr-scene-chat');
+    if (vrChat) {
+      vrChat.style.display = 'none';
+    }
+
     // 隐藏所有VR容器
     Object.values(this.sceneConfig).forEach(config => {
       config.containerIds?.forEach(id => {
@@ -327,6 +412,14 @@ export class EnhancedSceneManager {
         }
       } catch (error) {
         console.error(`清理 ${currentConfig.toolComponent} 失败:`, error);
+      }
+    }
+    
+    // 如果当前场景是VR场景，隐藏VR聊天界面
+    if (currentConfig?.isVRScene) {
+      const vrChat = document.getElementById('vr-scene-chat');
+      if (vrChat) {
+        vrChat.style.display = 'none';
       }
     }
   }
@@ -394,6 +487,46 @@ export class EnhancedSceneManager {
     }
   }
 
+  // 切换VR场景聊天显示状态
+  toggleVRChat() {
+    const chatContainer = document.getElementById('vr-chat-container');
+    const toggleBtn = document.querySelector('.vr-chat-toggle-btn');
+    
+    if (!chatContainer || !toggleBtn) {
+      console.error('VR聊天容器或切换按钮不存在');
+      return;
+    }
+    
+    const isVisible = chatContainer.style.display !== 'none';
+    
+    if (isVisible) {
+      chatContainer.style.display = 'none';
+      toggleBtn.innerHTML = `
+        <span class="chat-icon">💬</span>
+        <span class="chat-text">与${this.sceneConfig[this.currentScene].name}对话</span>
+      `;
+    } else {
+      chatContainer.style.display = 'block';
+      toggleBtn.innerHTML = `
+        <span class="chat-icon">📖</span>
+        <span class="chat-text">隐藏对话</span>
+      `;
+      
+      // 如果聊天界面为空或者没有正确初始化，重新初始化
+      if (!chatContainer.querySelector('.chat-interface')) {
+        console.log('重新初始化VR聊天界面');
+        const currentConfig = this.sceneConfig[this.currentScene];
+        if (currentConfig && currentConfig.hasChat) {
+          setTimeout(() => {
+            chatManager.disconnect();
+            chatContainer.innerHTML = '';
+            chatManager.initChatInterface('vr-chat-container', currentConfig.templateId);
+          }, 100);
+        }
+      }
+    }
+  }
+
   // 返回上一个场景
   goToPreviousScene() {
     if (this.previousScene && this.previousScene !== this.currentScene) {
@@ -427,7 +560,7 @@ export class EnhancedSceneManager {
       }
       
       // 预加载场景内容但不显示
-      if (config.panelId) {
+      if (config.panelId && !config.isVRScene) {
         const panel = document.getElementById(config.panelId);
         if (panel && !panel.innerHTML.trim()) {
           await this.createSceneContent(sceneNumber);
@@ -515,6 +648,12 @@ export class EnhancedSceneManager {
     // 清理事件监听器
     document.removeEventListener('keydown', this.keyboardHandler);
     
+    // 清理VR聊天界面
+    const vrChat = document.getElementById('vr-scene-chat');
+    if (vrChat) {
+      vrChat.remove();
+    }
+    
     console.log('✅ 场景管理器已销毁');
   }
 }
@@ -526,6 +665,7 @@ export const enhancedSceneManager = new EnhancedSceneManager();
 window.EnhancedSceneManager = {
   switchTo: (sceneNumber) => enhancedSceneManager.switchTo(sceneNumber),
   toggleChat: () => enhancedSceneManager.toggleChat(),
+  toggleVRChat: () => enhancedSceneManager.toggleVRChat(),
   goToPreviousScene: () => enhancedSceneManager.goToPreviousScene(),
   resetAllScenes: () => enhancedSceneManager.resetAllScenes(),
   getSceneInfo: (sceneNumber) => enhancedSceneManager.getSceneInfo(sceneNumber),
